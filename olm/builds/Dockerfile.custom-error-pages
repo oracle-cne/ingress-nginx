@@ -1,0 +1,12 @@
+FROM container-registry.oracle.com/os/oraclelinux:9-slim
+
+COPY ../../images/custom-error-pages/rootfs/nginx-errors /
+COPY ../../images/custom-error-pages/rootfs/www /
+COPY ../../images/custom-error-pages/rootfs/etc /etc/
+
+WORKDIR /
+
+COPY ../../LICENSE ../../THIRD_PARTY_LICENSES.txt /usr/share/licenses/
+
+USER nobody:nobody
+ENTRYPOINT ["/nginx-errors"]
