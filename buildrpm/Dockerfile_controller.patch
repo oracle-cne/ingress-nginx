@@ -1,0 +1,50 @@
+diff --git rootfs/Dockerfile rootfs/Dockerfile
+index 9b7753b5d..6743a522e 100644
+--- rootfs/Dockerfile
++++ rootfs/Dockerfile
+@@ -33,17 +33,17 @@ LABEL build_id="${BUILD_ID}"
+ 
+ WORKDIR  /etc/nginx
+ 
+-RUN apk update \
+-  && apk upgrade \
+-  && apk add --no-cache \
++RUN microdnf install \
+     diffutils \
+-  && rm -rf /var/cache/apk/*
++  && microdnf clean all \
++  && rm -rf /var/cache/* /var/lib/rpm/* /var/lib/dnf/*
+ 
+ COPY --chown=www-data:www-data etc /etc
+ 
+ COPY --chown=www-data:www-data bin/${TARGETARCH}/dbg /
+ COPY --chown=www-data:www-data bin/${TARGETARCH}/nginx-ingress-controller /
+ COPY --chown=www-data:www-data bin/${TARGETARCH}/wait-shutdown /
++COPY ./LICENSE ./THIRD_PARTY_LICENSES.txt /usr/share/licenses/
+ 
+ # Fix permission during the build to avoid issues at runtime
+ # with volumes (custom templates)
+@@ -67,14 +67,11 @@ RUN bash -xeu -c ' \
+   && echo "/lib:/usr/lib:/usr/local/lib:/modules_mount/etc/nginx/modules/otel" > /etc/ld-musl-x86_64.path
+   
+
+-RUN apk add --no-cache libcap \
+-  && setcap    cap_net_bind_service=+ep /nginx-ingress-controller \
++RUN \
++  setcap       cap_net_bind_service=+ep /nginx-ingress-controller \
+   && setcap -v cap_net_bind_service=+ep /nginx-ingress-controller \
+   && setcap    cap_net_bind_service=+ep /usr/local/nginx/sbin/nginx \
+   && setcap -v cap_net_bind_service=+ep /usr/local/nginx/sbin/nginx \
+-  && setcap    cap_net_bind_service=+ep /usr/bin/dumb-init \
+-  && setcap -v cap_net_bind_service=+ep /usr/bin/dumb-init \
+-  && apk del libcap \
+   && ln -sf /usr/local/nginx/sbin/nginx /usr/bin/nginx
+ 
+ USER www-data
+@@ -83,5 +80,5 @@ USER www-data
+ RUN  ln -sf /dev/stdout /var/log/nginx/access.log \
+   && ln -sf /dev/stderr /var/log/nginx/error.log
+ 
+-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
++#ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+ CMD ["/nginx-ingress-controller"]
