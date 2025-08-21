@@ -1,0 +1,6 @@
+[ol9_developer_EPEL]
+name=Oracle Linux $releasever Development Packages ($basearch)
+baseurl=http://yum$ociregion.oracle.com/repo/OracleLinux/OL9/developer/EPEL/$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
