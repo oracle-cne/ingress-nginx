@@ -41,10 +41,10 @@ SPDX:BSD-3-Clause--modified-by-Google
 
 == Copyright
 Copyright (c) 2012 The Go Authors. All rights reserved.
-Copyright (c) 2013 Dario CastaÃ±Ã©. All rights reserved.
+Copyright (c) 2013 Dario Castañé. All rights reserved.
 Copyright 2009 The Go Authors. All rights reserved.
-Copyright 2013 Dario CastaÃ±Ã©. All rights reserved.
-Copyright 2014 Dario CastaÃ±Ã©. All rights reserved.
+Copyright 2013 Dario Castañé. All rights reserved.
+Copyright 2014 Dario Castañé. All rights reserved.
 
 --------------------------------- (separator) ----------------------------------
 
@@ -258,8 +258,8 @@ SPDX:BSD-3-Clause--modified-by-Google
 
 == Copyright
 Copyright (c) 2013, Patrick Mezard
-Copyright Â© 2012 The Go Authors. All rights reserved.
-Copyright Â© fsnotify Authors. All rights reserved.
+Copyright © 2012 The Go Authors. All rights reserved.
+Copyright © fsnotify Authors. All rights reserved.
 
 --------------------------------- (separator) ----------------------------------
 
@@ -284,7 +284,7 @@ SPDX:MIT
 == Copyright
 Copyright (c) 2019-present Faye Amacker
 Copyright (c) Faye Amacker. All rights reserved.
-Copyright Â© 2019-2024 [Faye Amacker](https://github.com/fxamacker).
+Copyright © 2019-2024 [Faye Amacker](https://github.com/fxamacker).
 
 --------------------------------- (separator) ----------------------------------
 
@@ -581,7 +581,7 @@ github.com/gregjones/httpcache
 SPDX:MIT
 
 == Copyright
-Copyright Â© 2012 Greg Jones (greg.jones@gmail.com)
+Copyright © 2012 Greg Jones (greg.jones@gmail.com)
 
 --------------------------------- (separator) ----------------------------------
 
@@ -806,7 +806,7 @@ Copyright 2018 Brian Goff cpuguy83@gmail.com
 Copyright 2018 Daniel Nephin dnephin@docker.com
 Copyright 2018 Fabian Kramm kramm@covexo.com
 Copyright 2018 GitHub noreply@github.com
-Copyright 2018 Kasper FabÃ¦ch Brandt poizan@poizan.dk
+Copyright 2018 Kasper Fabæch Brandt poizan@poizan.dk
 Copyright 2018 Kir Kolyshkin kolyshkin@gmail.com
 Copyright 2018 Oliver Reason oli@overrateddev.co
 Copyright 2018 Sebastiaan van Stijn github@gone.nl
@@ -838,7 +838,7 @@ Copyright 2022 Kazuyoshi Kato katokazu@amazon.com
 Copyright 2022 Kir Kolyshkin kolyshkin@gmail.com
 Copyright 2022 Manu Gupta manugupt1@gmail.com
 Copyright 2022 Sebastiaan van Stijn github@gone.nl
-Copyright 2022 è°¢è‡´é‚¦ (XIE Zhibang) Yeking@Red54.com
+Copyright 2022 谢致邦 (XIE Zhibang) Yeking@Red54.com
 Copyright 2023 Aleksa Sarai cyphar@cyphar.com
 Copyright 2023 GitHub noreply@github.com
 Copyright 2023 Kir Kolyshkin kolyshkin@gmail.com
@@ -1094,11 +1094,11 @@ SPDX:Apache-2.0
 == Copyright
 Copyright (c) 2013 The Go Authors. All rights reserved.
 Copyright (c) 2013, The Prometheus Authors
-Copyright (c) 2015 BjÃ¶rn Rabenstein
+Copyright (c) 2015 Björn Rabenstein
 Copyright 2010 The Go Authors
 Copyright 2012-2015 The Prometheus Authors
 Copyright 2013 The Go Authors. All rights reserved.
-Copyright 2013-2015 Blake Mizerany, BjÃ¶rn Rabenstein
+Copyright 2013-2015 Blake Mizerany, Björn Rabenstein
 Copyright 2014 The Prometheus Authors
 Copyright 2015 The Prometheus Authors
 Copyright 2016 The Prometheus Authors
@@ -1124,7 +1124,7 @@ The following components are included in this product:
 
 perks - a fork of https://github.com/bmizerany/perks
 https://github.com/beorn7/perks
-Copyright 2013-2015 Blake Mizerany, BjÃ¶rn Rabenstein
+Copyright 2013-2015 Blake Mizerany, Björn Rabenstein
 See https://github.com/beorn7/perks/blob/master/README.md for license details.
 
 Go support for Protocol Buffers - Google's data interchange format
@@ -1310,8 +1310,8 @@ github.com/x448/float16
 SPDX:MIT
 
 == Copyright
-Copyright (c) 2019 Montgomery Edwardsâ´â´â¸ and Faye Amacker
-Copyright 2019 Montgomery Edwardsâ´â´â¸ and Faye Amacker
+Copyright (c) 2019 Montgomery Edwards⁴⁴⁸ and Faye Amacker
+Copyright 2019 Montgomery Edwards⁴⁴⁸ and Faye Amacker
 
 --------------------------------- (separator) ----------------------------------
 
@@ -1322,7 +1322,7 @@ github.com/xlab/treeprint
 SPDX:MIT
 
 == Copyright
-Copyright Â© 2016 Maxim Kupriianov <max@kc.vc>
+Copyright © 2016 Maxim Kupriianov <max@kc.vc>
 
 --------------------------------- (separator) ----------------------------------
 
@@ -1358,7 +1358,7 @@ github.com/zakjan/cert-chain-resolver
 SPDX:MIT
 
 == Copyright
-Copyright (c) 2015 Jan Å½Ã¡k (http://zakjan.cz)
+Copyright (c) 2015 Jan Žák (http://zakjan.cz)
 
 --------------------------------- (separator) ----------------------------------
 
@@ -2260,7 +2260,7 @@ gopkg.in/inf.v0
 SPDX:BSD-3-Clause--modified-by-Google
 
 == Copyright
-Copyright (c) 2012 PÃ©ter SurÃ¡nyi. Portions Copyright (c) 2009 The Go
+Copyright (c) 2012 Péter Surányi. Portions Copyright (c) 2009 The Go
 
 --------------------------------- (separator) ----------------------------------
 
@@ -2271,8 +2271,8 @@ gopkg.in/mcuadros/go-syslog.v2
 SPDX:MIT
 
 == Copyright
-Copyright (c) 2013 MÃ¡ximo Cuadros
-Copyright (c) 2013, JÃ©rÃ´me Renard
+Copyright (c) 2013 Máximo Cuadros
+Copyright (c) 2013, Jérôme Renard
 
 --------------------------------- (separator) ----------------------------------
 
@@ -3088,7 +3088,7 @@ Submitted on behalf of a third-party: @posener (Eyal Posener)
 Submitted on behalf of a third-party: @Ashikpaul (Ashik Paul)
 Submitted on behalf of a third-party: @kwongtailau (Kwongtai)
 Submitted on behalf of a third-party: @ericcornelissen (Eric Cornelissen)
-Submitted on behalf of a third-party: @eclipseo (Robert-AndrÃ© Mauchin)
+Submitted on behalf of a third-party: @eclipseo (Robert-André Mauchin)
 Submitted on behalf of a third-party: @yanzhoupan (Andrew Pan)
 Submitted on behalf of a third-party: @STRRL (Zhiqiang ZHOU)
 Submitted on behalf of a third-party: @disconnect3d (Disconnect3d)
