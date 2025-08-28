@@ -26,6 +26,7 @@ Patch2: Dockerfile.patch
 Patch3: Dockerfile_controller.patch
 Patch4: nginx.tmpl.patch
 Patch5: run-in-docker.sh.patch
+Patch6: root_build.sh.patch
 
 %description
 %{summary}
@@ -38,6 +39,7 @@ Patch5: run-in-docker.sh.patch
 %patch3
 %patch4
 %patch5
+%patch6
 
 %build
 mkdir -p ${HOME}/.kube
