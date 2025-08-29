@@ -1,5 +1,5 @@
 diff --git build/build.sh build/build.sh
-index bbcaf78e8..fee646a40 100755
+index 9de796358..d38e10f6a 100755
 --- build/build.sh
 +++ build/build.sh
 @@ -41,29 +41,32 @@ echo "Building targets for ${ARCH}, generated targets in ${TARGETS_DIR} director
@@ -10,8 +10,9 @@ index bbcaf78e8..fee646a40 100755
 +  -trimpath=false -ldflags="-buildid= -w -s \
    -X ${PKG}/version.RELEASE=${TAG} \
    -X ${PKG}/version.COMMIT=${COMMIT_SHA} \
-   -X ${PKG}/version.REPO=${REPO_INFO}" \
-+  -X main.version=${TAG} \
+-  -X ${PKG}/version.REPO=${REPO_INFO}" \
++  -X ${PKG}/version.REPO=${REPO_INFO} \
++  -X main.version=${TAG}" \
    -buildvcs=false \
    -o "${TARGETS_DIR}/nginx-ingress-controller" "${PKG}/cmd/nginx"
  
@@ -22,8 +23,9 @@ index bbcaf78e8..fee646a40 100755
 +  -trimpath=false -ldflags="-buildid= -w -s \
    -X ${PKG}/version.RELEASE=${TAG} \
    -X ${PKG}/version.COMMIT=${COMMIT_SHA} \
-   -X ${PKG}/version.REPO=${REPO_INFO}" \
-+  -X main.version=${TAG} \
+-  -X ${PKG}/version.REPO=${REPO_INFO}" \
++  -X ${PKG}/version.REPO=${REPO_INFO} \
++  -X main.version=${TAG}" \
    -buildvcs=false \
    -o "${TARGETS_DIR}/dbg" "${PKG}/cmd/dbg"
  
@@ -34,9 +36,8 @@ index bbcaf78e8..fee646a40 100755
 +  -trimpath=false -ldflags="-buildid= -w -s \
    -X ${PKG}/version.RELEASE=${TAG} \
    -X ${PKG}/version.COMMIT=${COMMIT_SHA} \
-   -X ${PKG}/version.REPO=${REPO_INFO}" \
-+  -X main.version=${TAG} \
+-  -X ${PKG}/version.REPO=${REPO_INFO}" \
++  -X ${PKG}/version.REPO=${REPO_INFO} \
++  -X main.version=${TAG}" \
    -buildvcs=false \
--  -o "${TARGETS_DIR}/wait-shutdown" "${PKG}/cmd/waitshutdown"
-\ No newline at end of file
-+  -o "${TARGETS_DIR}/wait-shutdown" "${PKG}/cmd/waitshutdown"
+   -o "${TARGETS_DIR}/wait-shutdown" "${PKG}/cmd/waitshutdown"
