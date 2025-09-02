@@ -1,0 +1,22 @@
+@Library('olcne-pipeline') _
+import com.oracle.olcne.pipeline.BranchPattern
+
+String version  = "1.13.1"
+String imageTag = "v" + version
+String container_registry_namespace = "olcne"
+String registry = "container-registry.oracle.com/" + container_registry_namespace
+
+olcnePipeline(
+        branchPattern: new BranchPattern(master: 'oracle/release/' + version, feature: '(?!^release/.*$)(^.*$)'),
+        containers: [
+           (registry + '/ingress-nginx-controller:' + imageTag) : container_registry_namespace + '/ingress-nginx-controller:' + imageTag,
+           (registry + '/kube-webhook-certgen:' + imageTag) : container_registry_namespace + '/kube-webhook-certgen:' + imageTag,
+           (registry + '/custom-error-pages:' + imageTag) : container_registry_namespace + '/custom-error-pages:' + imageTag,
+        ],
+        architectures: ['x86_64', 'aarch64'],
+        platforms: ['ol9'],
+        yumOL9Repos: ['ol9_appstream', 'ol9_codeready_builder'],
+        customPlatformSteps: [
+                ol9: [container: [enabled: true], buildContainerRpms: [enabled: true]],
+        ]
+)
