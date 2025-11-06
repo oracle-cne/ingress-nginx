@@ -1,5 +1,5 @@
 diff --git images/nginx/rootfs/build.sh images/nginx/rootfs/build.sh
-index e352be10c..fcd045161 100755
+index ff615c409..0542f4936 100755
 --- images/nginx/rootfs/build.sh
 +++ images/nginx/rootfs/build.sh
 @@ -134,52 +134,58 @@ get_src()
@@ -86,30 +86,7 @@ index e352be10c..fcd045161 100755
  
  # apk add -X http://dl-cdn.alpinelinux.org/alpine/edge/testing opentelemetry-cpp-dev
  
-@@ -318,12 +324,22 @@ git config --global --add core.compression -1
- 
- # Get Brotli source and deps
- cd "$BUILD_PATH"
-+# Temporary fix for https://github.com/google/ngx_brotli/issues/156 based on https://github.com/wallarm/ingress/commit/47222d411a8b66699836ca1c716b2d281f2a0295
- git clone --depth=100 https://github.com/google/ngx_brotli.git
- cd ngx_brotli
- # https://github.com/google/ngx_brotli/issues/156
- git reset --hard 63ca02abdcf79c9e788d2eedcc388d2335902e52
- git submodule init
- git submodule update
-+cd deps/brotli
-+mkdir out && cd out
-+
-+includ_m64=''
-+if [[ ${ARCH} == "x86_64" ]]; then
-+  includ_m64='-m64'
-+fi
-+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-Ofast $includ_m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_CXX_FLAGS="-Ofast $includ_m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_INSTALL_PREFIX=./installed ..
-+cmake --build . --config Release --target brotlienc
- 
- cd "$BUILD_PATH"
- git clone --depth=1 https://github.com/ssdeep-project/ssdeep
-@@ -516,6 +532,7 @@ WITH_MODULES=" \
+@@ -500,6 +506,7 @@ WITH_MODULES=" \
    --without-http_scgi_module \
    --with-cc-opt="${CC_OPT}" \
    --with-ld-opt="${LD_OPT}" \
@@ -117,7 +94,7 @@ index e352be10c..fcd045161 100755
    --user=www-data \
    --group=www-data \
    ${WITH_MODULES}
-@@ -524,6 +541,9 @@ make
+@@ -508,6 +515,9 @@ make
  make modules
  make install
  
@@ -127,7 +104,7 @@ index e352be10c..fcd045161 100755
  # Check for recent changes: https://github.com/open-telemetry/opentelemetry-cpp-contrib/compare/8933841f0a7f8737f61404cf0a64acf6b079c8a5...main
  export OPENTELEMETRY_CONTRIB_COMMIT=8933841f0a7f8737f61404cf0a64acf6b079c8a5
  cd "$BUILD_PATH"
-@@ -618,7 +638,10 @@ writeDirs=( \
+@@ -603,7 +613,10 @@ writeDirs=( \
    /var/log/nginx \
  );
  
