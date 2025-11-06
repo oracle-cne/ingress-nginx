@@ -1,0 +1,86 @@
+diff --git images/nginx/rootfs/Dockerfile images/nginx/rootfs/Dockerfile
+index 508919868..b9a0fd06b 100644
+--- images/nginx/rootfs/Dockerfile
++++ images/nginx/rootfs/Dockerfile
+@@ -11,17 +11,18 @@
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-FROM alpine:3.22.2 AS builder
++FROM container-registry.oracle.com/os/oraclelinux:9-slim as builder
+ 
+ COPY . /
++COPY oracle-epel-ol9.repo /etc/yum.repos.d/
++COPY oracle-codeready-ol9.repo /etc/yum.repos.d/
+ 
+-RUN apk update \
+-  && apk upgrade \
+-  && apk add -U bash --no-cache \
+-  && /build.sh
++RUN  /build.sh
+ 
+ # Use a multi-stage build
+-FROM alpine:3.22.2
++FROM container-registry.oracle.com/os/oraclelinux:9-slim
++COPY oracle-epel-ol9.repo /etc/yum.repos.d/
++COPY oracle-codeready-ol9.repo /etc/yum.repos.d/
+ 
+ ENV PATH=$PATH:/usr/local/luajit/bin:/usr/local/nginx/sbin:/usr/local/nginx/bin
+ 
+@@ -29,33 +30,32 @@ ENV LUA_PATH="/usr/local/share/luajit-2.1.0-beta3/?.lua;/usr/local/share/lua/5.1
+ ENV LUA_CPATH="/usr/local/lib/lua/?/?.so;/usr/local/lib/lua/?.so;;"
+ 
+ COPY --from=builder /usr/local /usr/local
+-COPY --from=builder /usr/lib/libopentelemetry* /usr/local/lib
+-COPY --from=builder /opt /opt
++COPY --from=builder /lib64/libopentelemetry* /lib64
++#COPY --from=builder /opt /opt
++COPY --from=builder /usr/local/lib /lib64
+ COPY --from=builder /etc/nginx /etc/nginx
+ 
+-RUN apk update \
+-  && apk upgrade \
+-  && apk add -U --no-cache \
+-  bash \
+-  openssl \
+-  pcre \
+-  zlib \
+-  ca-certificates \
+-  patch \
+-  yajl \
+-  lmdb \
+-  libxml2 \
+-  libmaxminddb \
+-  yaml-cpp \
+-  dumb-init \
+-  tzdata \
+-  grpc-cpp \
+-  libprotobuf \
+-  abseil-cpp-crc-cpu-detect \
+-  abseil-cpp-vlog-config-internal \
++RUN microdnf update -y && \
++    microdnf install --nodocs \
++    bash \
++    openssl \
++    pcre \
++    zlib \
++    curl \
++    ca-certificates \
++    patch \
++    yajl \
++    lmdb \
++    libxml2 \
++    libmaxminddb \
++    yaml-cpp \
++    tzdata \
++    grpc-cpp \
++    abseil-cpp \
++    abseil-cpp-devel \
+   && ln -s /usr/local/nginx/sbin/nginx /sbin/nginx \
+-  && adduser -S -D -H -u 101 -h /usr/local/nginx \
+-  -s /sbin/nologin -G www-data -g www-data www-data \
++  && groupadd -rg 101 www-data \
++  && useradd --system --uid 101 --home /usr/local/nginx --shell /sbin/nologin --gid www-data www-data \
+   && bash -eu -c ' \
+   writeDirs=( \
+   /var/log/nginx \
