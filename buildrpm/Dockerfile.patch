@@ -1,12 +1,12 @@
 diff --git images/nginx/rootfs/Dockerfile images/nginx/rootfs/Dockerfile
-index 8f6bab137..b9a0fd06b 100644
+index 508919868..b9a0fd06b 100644
 --- images/nginx/rootfs/Dockerfile
 +++ images/nginx/rootfs/Dockerfile
 @@ -11,17 +11,18 @@
  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  # See the License for the specific language governing permissions and
  # limitations under the License.
--FROM alpine:3.21 AS builder
+-FROM alpine:3.22.2 AS builder
 +FROM container-registry.oracle.com/os/oraclelinux:9-slim as builder
  
  COPY . /
@@ -20,7 +20,7 @@ index 8f6bab137..b9a0fd06b 100644
 +RUN  /build.sh
  
  # Use a multi-stage build
--FROM alpine:3.21
+-FROM alpine:3.22.2
 +FROM container-registry.oracle.com/os/oraclelinux:9-slim
 +COPY oracle-epel-ol9.repo /etc/yum.repos.d/
 +COPY oracle-codeready-ol9.repo /etc/yum.repos.d/
@@ -37,7 +37,7 @@ index 8f6bab137..b9a0fd06b 100644
 +#COPY --from=builder /opt /opt
 +COPY --from=builder /usr/local/lib /lib64
  COPY --from=builder /etc/nginx /etc/nginx
-
+ 
 -RUN apk update \
 -  && apk upgrade \
 -  && apk add -U --no-cache \
