@@ -1,0 +1,118 @@
+diff --git images/nginx/rootfs/build.sh images/nginx/rootfs/build.sh
+index ff615c409..0542f4936 100755
+--- images/nginx/rootfs/build.sh
++++ images/nginx/rootfs/build.sh
+@@ -134,52 +134,58 @@ get_src()
+ 
+ # install required packages to build
+ # Dependencies from "ninja" and below are OTEL dependencies
+-apk add \
++microdnf install --setopt=ol9_appstream.exclude=golang \
+   bash \
+   gcc \
++  gcc-c++ \
++  krb5-libs \
++  libstdc++ \
++  libstdc++-devel \
++  libstdc++-static \
+   clang \
+-  libc-dev \
++  glibc-devel \
+   make \
++  cmake3 \
+   automake \
+-  openssl-dev \
+-  pcre-dev \
+-  zlib-dev \
+-  linux-headers \
+-  libxslt-dev \
+-  gd-dev \
+-  perl-dev \
+-  libedit-dev \
++  openssl-devel \
++  pcre-devel \
++  zlib-devel \
++  libxslt-devel \
++  gd-devel \
++  perl-devel \
++  libedit-devel \
+   mercurial \
+-  alpine-sdk \
+   findutils \
+   curl \
+   ca-certificates \
+   patch \
+-  libaio-dev \
++  libaio-devel \
+   openssl \
+   cmake \
+   util-linux \
+-  lmdb-tools \
++  lmdb \
+   wget \
+-  curl-dev \
+-  libprotobuf \
+-  git g++ pkgconf flex bison doxygen yajl-dev lmdb-dev libtool autoconf libxml2 libxml2-dev \
++  libcurl-devel \
++  protobuf \
++  git pkgconf flex bison doxygen yajl-devel lmdb-devel libtool autoconf libxml2 libxml2-devel \
+   python3 \
+-  libmaxminddb-dev \
++  libmaxminddb-devel \
+   bc \
+   unzip \
+   dos2unix \
+   yaml-cpp \
+-  coreutils \
+-  ninja \
+-  gtest-dev \
++  coreutils-single \
++  ninja-build \
++  gtest-devel \
+   git \
+-  build-base \
+   pkgconfig \
+-  c-ares-dev \
+-  re2-dev \
+-  grpc-dev \
+-  protobuf-dev
++  c-ares-devel \
++  re2-devel \
++  grpc-devel \
++  protobuf-devel \
++  abseil-cpp \
++  abseil-cpp-devel \
++  lua-devel
+ 
+ # apk add -X http://dl-cdn.alpinelinux.org/alpine/edge/testing opentelemetry-cpp-dev
+ 
+@@ -500,6 +506,7 @@ WITH_MODULES=" \
+   --without-http_scgi_module \
+   --with-cc-opt="${CC_OPT}" \
+   --with-ld-opt="${LD_OPT}" \
++  --without-pcre2 \
+   --user=www-data \
+   --group=www-data \
+   ${WITH_MODULES}
+@@ -508,6 +515,9 @@ make
+ make modules
+ make install
+ 
++# LD_LIBRARY_PATH not working, so, copy manually
++cp -f /usr/local/lib/lib*.so* /lib64/ 2>/dev/null
++
+ # Check for recent changes: https://github.com/open-telemetry/opentelemetry-cpp-contrib/compare/8933841f0a7f8737f61404cf0a64acf6b079c8a5...main
+ export OPENTELEMETRY_CONTRIB_COMMIT=8933841f0a7f8737f61404cf0a64acf6b079c8a5
+ cd "$BUILD_PATH"
+@@ -603,7 +613,10 @@ writeDirs=( \
+   /var/log/nginx \
+ );
+ 
+-adduser -S -D -H -u 101 -h /usr/local/nginx -s /sbin/nologin -G www-data -g www-data www-data
++#adduser -S -D -H -u 101 -h /usr/local/nginx -s /sbin/nologin -G www-data -g www-data www-data
++getent group
++groupadd -rg 102 www-data && \
++  useradd --system --uid 102 --home /usr/local/nginx --shell /sbin/nologin --gid www-data www-data
+ 
+ for dir in "${writeDirs[@]}"; do
+   mkdir -p ${dir};
