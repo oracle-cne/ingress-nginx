@@ -1,0 +1,17 @@
+diff --git build/run-in-docker.sh build/run-in-docker.sh
+index b7aef7be4..e03c1cb5c 100755
+--- build/run-in-docker.sh
++++ build/run-in-docker.sh
+@@ -79,9 +79,9 @@ if [[ "$DOCKER_IN_DOCKER_ENABLED" == "true" ]]; then
+   echo "..reached DIND check TRUE block, inside run-in-docker.sh"
+   echo "FLAGS=$FLAGS"
+   #go env
+-  go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo@v2.27.1
+-  find / -type f -name ginkgo 2>/dev/null
+-  which ginkgo
++  #go install -mod=mod github.com/onsi/ginkgo/v2/ginkgo@v2.27.1
++  #find / -type f -name ginkgo 2>/dev/null
++  #which ginkgo
+   /bin/bash -c "${FLAGS}"
+ else
+   echo "Reached DIND check ELSE block, inside run-in-docker.sh"
