@@ -1,0 +1,10 @@
+FROM container-registry.oracle.com/os/oraclelinux:9-slim
+
+COPY ../../images/kube-webhook-certgen/rootfs/kube-webhook-certgen /
+
+WORKDIR /
+COPY ../../LICENSE ../../THIRD_PARTY_LICENSES.txt /usr/share/licenses/
+
+USER 65532:65532
+ENTRYPOINT ["/kube-webhook-certgen"]
+
