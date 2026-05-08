@@ -81,7 +81,7 @@ index 5cbce6139..656470587 100644
 -  && adduser -S -D -H -u 101 -h /usr/local/nginx \
 -  -s /sbin/nologin -G www-data -g www-data www-data \
 +  && mkdir -p /usr/local/lib \
-+  && ln -s  /usr/local/lib/libmimalloc.so /usr/lib64/libmimalloc.so \
++  && ln -s  /usr/lib64/libmimalloc.so /usr/local/lib/libmimalloc.so  \
 +  && groupadd -rg 101 www-data \
 +  && useradd --system --uid 101 --home /usr/local/nginx --shell /sbin/nologin --gid www-data www-data \
    && bash -eu -c ' \
