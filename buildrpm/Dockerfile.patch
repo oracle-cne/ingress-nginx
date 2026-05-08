@@ -1,7 +1,7 @@
-diff --git a/images/nginx/rootfs/Dockerfile b/images/nginx/rootfs/Dockerfile
+diff --git images/nginx/rootfs/Dockerfile images/nginx/rootfs/Dockerfile
 index 5cbce6139..edc376a50 100644
---- a/images/nginx/rootfs/Dockerfile
-+++ b/images/nginx/rootfs/Dockerfile
+--- images/nginx/rootfs/Dockerfile
++++ images/nginx/rootfs/Dockerfile
 @@ -11,17 +11,18 @@
  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  # See the License for the specific language governing permissions and
