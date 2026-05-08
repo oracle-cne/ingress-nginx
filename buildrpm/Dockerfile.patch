@@ -1,5 +1,5 @@
 diff --git images/nginx/rootfs/Dockerfile images/nginx/rootfs/Dockerfile
-index 5cbce6139..edc376a50 100644
+index 5cbce6139..656470587 100644
 --- images/nginx/rootfs/Dockerfile
 +++ images/nginx/rootfs/Dockerfile
 @@ -11,17 +11,18 @@
@@ -27,7 +27,7 @@ index 5cbce6139..edc376a50 100644
  
  ENV PATH=$PATH:/usr/local/luajit/bin:/usr/local/nginx/sbin:/usr/local/nginx/bin
  
-@@ -29,33 +30,33 @@ ENV LUA_PATH="/usr/local/share/luajit-2.1.0-beta3/?.lua;/usr/local/share/lua/5.1
+@@ -29,33 +30,35 @@ ENV LUA_PATH="/usr/local/share/luajit-2.1.0-beta3/?.lua;/usr/local/share/lua/5.1
  ENV LUA_CPATH="/usr/local/lib/lua/?/?.so;/usr/local/lib/lua/?.so;;"
  
  COPY --from=builder /usr/local /usr/local
@@ -80,6 +80,8 @@ index 5cbce6139..edc376a50 100644
    && ln -s /usr/local/nginx/sbin/nginx /sbin/nginx \
 -  && adduser -S -D -H -u 101 -h /usr/local/nginx \
 -  -s /sbin/nologin -G www-data -g www-data www-data \
++  && mkdir -p /usr/local/lib \
++  && ln -s  /usr/local/lib/libmimalloc.so /usr/lib64/libmimalloc.so \
 +  && groupadd -rg 101 www-data \
 +  && useradd --system --uid 101 --home /usr/local/nginx --shell /sbin/nologin --gid www-data www-data \
    && bash -eu -c ' \
