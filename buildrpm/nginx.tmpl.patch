@@ -1,0 +1,22 @@
+diff --git rootfs/etc/nginx/template/nginx.tmpl rootfs/etc/nginx/template/nginx.tmpl
+index 94dc12412..bd884ecd4 100644
+--- rootfs/etc/nginx/template/nginx.tmpl
++++ rootfs/etc/nginx/template/nginx.tmpl
+@@ -493,6 +493,7 @@ http {
+ 
+     {{ range $errCode := $cfg.CustomHTTPErrors }}
+     error_page {{ $errCode }} = @custom_upstream-default-backend_{{ $errCode }};{{ end }}
++    error_page 400 /400.html;
+ 
+     proxy_ssl_session_reuse on;
+ 
+@@ -677,6 +678,9 @@ http {
+         {{ end }}
+ 
+         {{ template "CUSTOM_ERRORS" (buildCustomErrorDeps "upstream-default-backend" $cfg.CustomHTTPErrors $all.EnableMetrics $cfg.EnableModsecurity) }}
++        location /400.html {
++            rewrite ^ /400.html break;
++        }
+     }
+     ## end server {{ $server.Hostname }}
+ 
