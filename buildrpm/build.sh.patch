@@ -86,7 +86,14 @@ index ff615c409..0542f4936 100755
  
  # apk add -X http://dl-cdn.alpinelinux.org/alpine/edge/testing opentelemetry-cpp-dev
  
-@@ -500,6 +506,7 @@ WITH_MODULES=" \
+@@ -331,2 +337,6 @@ cd ssdeep/
++# ssdeep builds with OL9 Autoconf 2.69; its 2.71 minimum is overly restrictive.
++echo "Building ssdeep with the validated Oracle Linux Autoconf 2.69 minimum"
++sed -i 's/^AC_PREREQ(\[2\.71\])/AC_PREREQ([2.69])/' configure.ac
++
+ ./bootstrap
+ ./configure
+@@ -500,6 +510,7 @@ WITH_MODULES=" \
    --without-http_scgi_module \
    --with-cc-opt="${CC_OPT}" \
    --with-ld-opt="${LD_OPT}" \
@@ -94,7 +101,7 @@ index ff615c409..0542f4936 100755
    --user=www-data \
    --group=www-data \
    ${WITH_MODULES}
-@@ -508,6 +515,9 @@ make
+@@ -508,6 +519,9 @@ make
  make modules
  make install
  
@@ -104,7 +111,7 @@ index ff615c409..0542f4936 100755
  # Check for recent changes: https://github.com/open-telemetry/opentelemetry-cpp-contrib/compare/8933841f0a7f8737f61404cf0a64acf6b079c8a5...main
  export OPENTELEMETRY_CONTRIB_COMMIT=8933841f0a7f8737f61404cf0a64acf6b079c8a5
  cd "$BUILD_PATH"
-@@ -603,7 +613,10 @@ writeDirs=( \
+@@ -603,7 +617,10 @@ writeDirs=( \
    /var/log/nginx \
  );
  
