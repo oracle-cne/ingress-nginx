@@ -53,7 +53,7 @@ export GOOS=linux
 
 cp buildrpm/oracle*.repo images/nginx/rootfs/
 chmod +x ./build-images.sh
-bash -x ./build-images.sh %{version} %{custom_arch}
+bash -x ./build-images.sh %{version}-1 %{custom_arch}
 
 %install
 %__install -D -m 644 ingress-nginx-controller.tar %{buildroot}/usr/local/share/olcne/ingress-nginx-controller.tar

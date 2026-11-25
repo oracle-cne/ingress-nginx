@@ -1,0 +1,13 @@
+diff --git a/images/test-runner/Makefile b/images/test-runner/Makefile
+index c9779bfb60d3a15aed570a03db9eb218128ac3e6..4bb1550d6e91c55bb509d62f6a1c88d7a9101a3d 100644
+--- a/images/test-runner/Makefile
++++ b/images/test-runner/Makefile
+@@ -44,7 +44,7 @@ build: builder
+ 		--build-arg YAML_LINT_VERSION=1.33.0 \
+ 		--build-arg YAMALE_VERSION=4.0.4 \
+ 		--build-arg HELM_VERSION=4.1.3 \
+-		--build-arg GINKGO_VERSION=2.28.1 \
++		--build-arg GINKGO_VERSION=2.34.0 \
+ 		--build-arg GOLINT_VERSION=latest \
+ 		rootfs \
+ 		--tag $(IMAGE):$(TAG) \

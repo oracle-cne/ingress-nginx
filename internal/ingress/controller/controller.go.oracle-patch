@@ -1,0 +1,13 @@
+diff --git a/internal/ingress/controller/controller.go b/internal/ingress/controller/controller.go
+index 8a4278ea8588dca61423ee7b5950642956998e0b..607975eab7e87550571b8c8ab6eabe3bf1f0c2dc 100644
+--- a/internal/ingress/controller/controller.go
++++ b/internal/ingress/controller/controller.go
+@@ -224,7 +224,7 @@ func (n *NGINXController) syncIngress(interface{}) error {
+ 			n.metricCollector.ConfigSuccess(hash, false)
+ 			n.lastConfigSuccess = false
+ 			klog.Errorf("Unexpected failure reloading the backend:\n%v", err)
+-			n.recorder.Eventf(k8s.IngressPodDetails, apiv1.EventTypeWarning, "RELOAD", fmt.Sprintf("Error reloading NGINX: %v", err))
++			n.recorder.Eventf(k8s.IngressPodDetails, apiv1.EventTypeWarning, "RELOAD", "Error reloading NGINX: %v", err)
+ 			return err
+ 		}
+ 
