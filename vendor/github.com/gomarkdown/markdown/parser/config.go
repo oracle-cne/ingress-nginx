@@ -1,0 +1,153 @@
+package parser
+
+import "github.com/gomarkdown/markdown/ast"
+
+// Extensions is a bitmask of enabled parser extensions.
+type Extensions int
+
+// Bit flags representing markdown parsing extensions.
+// Use | (or) to specify multiple extensions.
+const (
+	NoExtensions           Extensions = 0
+	NoIntraEmphasis        Extensions = 1 << iota // Ignore emphasis markers inside words
+	Tables                                        // Parse tables
+	FencedCode                                    // Parse fenced code blocks
+	Autolink                                      // Detect embedded URLs that are not explicitly marked
+	Strikethrough                                 // Strikethrough text using ~~test~~
+	LaxHTMLBlocks                                 // Loosen up HTML block parsing rules
+	SpaceHeadings                                 // Be strict about prefix heading rules
+	HardLineBreak                                 // Translate newlines into line breaks
+	NonBlockingSpace                              // Translate backslash-space into a non-breaking space
+	TabSizeEight                                  // Expand tabs to eight spaces instead of four
+	Footnotes                                     // Pandoc-style footnotes
+	NoEmptyLineBeforeBlock                        // No need to insert an empty line to start a (code, quote, ordered list, unordered list) block
+	HeadingIDs                                    // Specify heading IDs with {#id}
+	Titleblock                                    // Pandoc-style title block
+	AutoHeadingIDs                                // Create the heading ID from the text
+	BackslashLineBreak                            // Translate trailing backslashes into line breaks
+	DefinitionLists                               // Parse definition lists
+	MathJax                                       // Parse MathJax
+	OrderedListStart                              // Keep track of the first number used when starting an ordered list.
+	Attributes                                    // Block attributes: {#id .class key="value"} before a block or {: ...} after it. See html.SkipHTML for untrusted documents.
+	SuperSubscript                                // Super- and subscript support: 2^10^, H~2~O.
+	// EmptyLinesBreakList is retained for source compatibility and has no effect.
+	//
+	// Deprecated: this option is ignored.
+	EmptyLinesBreakList
+	Includes         // Support including other files.
+	Mmark            // Support Mmark syntax, see https://mmark.miek.nl/post/syntax/
+	InlineAttributes // Parse {key="value"} after links and images. See html.SkipHTML for untrusted documents.
+	MarkdownInHTML   // Parse markdown inside HTML table cells and similar tags
+
+	CommonExtensions Extensions = NoIntraEmphasis | Tables | FencedCode |
+		Autolink | Strikethrough | SpaceHeadings | HeadingIDs |
+		BackslashLineBreak | DefinitionLists | MathJax
+)
+
+const (
+	tabSizeDefault = 4
+	tabSizeDouble  = 8
+)
+
+// InlineParser parses inline data beginning at offset.
+type InlineParser func(p *Parser, data []byte, offset int) (int, ast.Node)
+
+// ReferenceOverrideFunc resolves a reference, or declines by returning
+// overridden false so the parser can use its document-defined references.
+type ReferenceOverrideFunc func(reference string) (ref *Reference, overridden bool)
+
+// New creates a markdown parser with CommonExtensions.
+func New() *Parser {
+	return NewWithExtensions(CommonExtensions)
+}
+
+// NewCommonMark creates a markdown parser that follows the CommonMark 0.31.2
+// spec. It sets the CommonMark flag; extensions don't apply in this mode.
+func NewCommonMark() *Parser {
+	p := NewWithExtensions(NoExtensions)
+	p.Opts.Flags |= CommonMark
+	return p
+}
+
+// CommonMarkExtensions are the extensions NewCommonMarkWithExtensions
+// supports. They follow GitHub Flavored Markdown where it differs from the
+// historical parser.
+const CommonMarkExtensions = Tables | Strikethrough | Autolink | AutoHeadingIDs
+
+// NewCommonMarkWithExtensions creates a markdown parser that follows the
+// CommonMark 0.31.2 spec plus the given extensions, of which those in
+// CommonMarkExtensions apply and the rest are ignored:
+//
+//   - Tables: pipe tables, which can interrupt a paragraph.
+//   - Strikethrough: ~~text~~.
+//   - Autolink: bare http://, https://, ftp:// and mailto: URLs become links.
+//     Trailing punctuation and unbalanced closing parentheses or brackets
+//     are not part of the URL.
+//   - AutoHeadingIDs: heading ids made from the heading text.
+//
+// Unlike NewCommonMark, the parser also runs Opts.ParserHook, at the start
+// of each block.
+func NewCommonMarkWithExtensions(extensions Extensions) *Parser {
+	p := NewCommonMark()
+	p.commonMarkExtensions = extensions & CommonMarkExtensions
+	p.commonMarkHooks = true
+	return p
+}
+
+// maxNesting limits how deeply blocks and inline content are nested.
+const maxNesting = 64
+
+// NewWithExtensions creates a markdown parser with the given extensions.
+func NewWithExtensions(extension Extensions) *Parser {
+	doc := &ast.Document{}
+	p := Parser{
+		refs:                 make(map[string]*reference),
+		refsRecord:           make(map[string]struct{}),
+		maxNesting:           maxNesting,
+		Doc:                  doc,
+		extensions:           extension,
+		tip:                  doc,
+		oldTip:               doc,
+		lastMatchedContainer: doc,
+		allClosed:            true,
+		includeStack:         newIncStack(),
+	}
+
+	p.registerInline(" ", maybeLineBreak)
+	p.registerInline("*_", emphasis)
+	if extension&(Strikethrough|SuperSubscript) != 0 {
+		p.registerInline("~", emphasis)
+	}
+	p.registerInline("`", codeSpan)
+	p.registerInline("\n", lineBreak)
+	p.registerInline("[", link)
+	p.registerInline("<", leftAngle)
+	p.registerInline("\\", escape)
+	p.registerInline("&", entity)
+	p.registerInline("!", maybeImage)
+	if extension&Mmark != 0 {
+		p.registerInline("(", maybeShortRefOrIndex)
+	}
+	p.registerInline("^", maybeInlineFootnoteOrSuper)
+	if extension&Autolink != 0 {
+		p.registerInline("hmfHMF", maybeAutoLink)
+	}
+	if extension&MathJax != 0 {
+		p.registerInline("$", math)
+	}
+
+	return &p
+}
+
+func (p *Parser) registerInline(chars string, fn InlineParser) {
+	for i := 0; i < len(chars); i++ {
+		p.inlineCallback[chars[i]] = fn
+	}
+}
+
+// RegisterInline installs fn for a trigger byte and returns the previous parser.
+func (p *Parser) RegisterInline(trigger byte, fn InlineParser) InlineParser {
+	previous := p.inlineCallback[trigger]
+	p.inlineCallback[trigger] = fn
+	return previous
+}
