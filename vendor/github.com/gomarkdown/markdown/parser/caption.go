@@ -4,12 +4,12 @@ import (
 	"bytes"
 )
 
-// caption checks for a caption, it returns the caption data and a potential "headingID".
-func (p *Parser) caption(data, caption []byte) ([]byte, string, int) {
-	if !bytes.HasPrefix(data, caption) {
+// caption checks for a caption. It returns the caption data and a potential "headingID".
+func parseCaption(data, prefix []byte) ([]byte, string, int) {
+	if !bytes.HasPrefix(data, prefix) {
 		return nil, "", 0
 	}
-	j := len(caption)
+	j := len(prefix)
 	data = data[j:]
 	end := LinesUntilEmpty(data)
 
@@ -50,13 +50,8 @@ func LinesUntilEmpty(data []byte) int {
 func captionID(data []byte) (string, int) {
 	end := len(data)
 
-	j, k := 0, 0
-	// find start/end of heading id
-	for j = 0; j < end-1 && (data[j] != '{' || data[j+1] != '#'); j++ {
-	}
-	for k = j + 1; k < end && data[k] != '}'; k++ {
-	}
-	// remains must be whitespace.
+	j, k := findBraceID(data, 0, end)
+	// the rest must be whitespace.
 	for l := k + 1; l < end; l++ {
 		if !IsSpace(data[l]) {
 			return "", 0

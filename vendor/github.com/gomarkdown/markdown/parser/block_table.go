@@ -1,14 +1,47 @@
 package parser
 
-import "github.com/gomarkdown/markdown/ast"
+import (
+	"bytes"
 
-// check if the specified position is preceded by an odd number of backslashes
-func isBackslashEscaped(data []byte, i int) bool {
-	backslashes := 0
-	for i-backslashes-1 >= 0 && data[i-backslashes-1] == '\\' {
-		backslashes++
+	"github.com/gomarkdown/markdown/ast"
+)
+
+// skipCodeSpan returns the closing backtick index, allowing table scanners to
+// ignore pipes inside code. It returns i when no span starts there.
+func skipCodeSpan(data []byte, i int) int {
+	if data[i] != '`' || isEscape(data, i) {
+		return i
 	}
-	return backslashes&1 == 1
+	// If no later run reaches the opener length, the inline parser retries
+	// shorter suffixes of the opener, so the longest later run wins.
+	k := skipChar(data, i, '`') - i
+	best, bestEnd := 0, i+k-1
+	run := 0
+	for j := i + k; j < len(data); j++ {
+		if data[j] != '`' {
+			run = 0
+			continue
+		}
+		run++
+		if run == k {
+			return j
+		}
+		if run > best {
+			best, bestEnd = run, j
+		}
+	}
+	return bestEnd
+}
+
+// padCell reports whether a row with too few cells can get another empty one,
+// which it can until that has added expansionLimit cells in all. Then the
+// rest of the rows only have the cells they have.
+func (p *Parser) padCell() bool {
+	if p.paddedCells >= p.expansionLimit() {
+		return false
+	}
+	p.paddedCells++
+	return true
 }
 
 func (p *Parser) tableRow(data []byte, columns []ast.CellAlignFlags, header bool) {
@@ -24,13 +57,11 @@ func (p *Parser) tableRow(data []byte, columns []ast.CellAlignFlags, header bool
 		i = skipChar(data, i, ' ')
 
 		cellStart := i
+		// past the end of the row, the remaining columns get empty cells
+		padding := i >= n || data[i] == '\n'
 
-		// If we are in a codespan we should discount any | we see, check for that here and skip ahead.
-		if isCode, _ := codeSpan(p, data[i:], 0); isCode > 0 {
-			i += isCode - 1
-		}
-
-		for i < n && (data[i] != '|' || isBackslashEscaped(data, i)) && data[i] != '\n' {
+		for i < n && (data[i] != '|' || isEscape(data, i)) && data[i] != '\n' {
+			i = skipCodeSpan(data, i)
 			i++
 		}
 
@@ -38,11 +69,11 @@ func (p *Parser) tableRow(data []byte, columns []ast.CellAlignFlags, header bool
 
 		// skip the end-of-cell marker, possibly taking us past end of buffer
 		// each _extra_ | means a colspan
-		for i < len(data) && data[i] == '|' && !isBackslashEscaped(data, i) {
+		for i < len(data) && data[i] == '|' && !isEscape(data, i) {
 			i++
 			colspan++
 		}
-		// only colspan > 1 make sense.
+		// only colspan > 1 makes sense.
 		if colspan < 2 {
 			colspan = 0
 		}
@@ -60,6 +91,8 @@ func (p *Parser) tableRow(data []byte, columns []ast.CellAlignFlags, header bool
 		if cellStart == cellEnd && colspans > 0 {
 			// an empty cell that we should ignore, it exists because of colspan
 			colspans--
+		} else if padding && !p.padCell() {
+			break
 		} else {
 			p.AddBlock(block)
 		}
@@ -70,7 +103,7 @@ func (p *Parser) tableRow(data []byte, columns []ast.CellAlignFlags, header bool
 	}
 
 	// pad it out with empty columns to get the right number
-	for ; col < len(columns); col++ {
+	for ; col < len(columns) && p.padCell(); col++ {
 		block := &ast.TableCell{
 			IsHeader: header,
 			Align:    columns[col],
@@ -89,12 +122,7 @@ func (p *Parser) tableFooter(data []byte) bool {
 	n := len(data)
 	i := skipCharN(data, 0, ' ', 3)
 	for ; i < n && data[i] != '\n'; i++ {
-		// If we are in a codespan we should discount any | we see, check for that here and skip ahead.
-		if isCode, _ := codeSpan(p, data[i:], 0); isCode > 0 {
-			i += isCode - 1
-		}
-
-		if data[i] == '|' && !isBackslashEscaped(data, i) {
+		if data[i] == '|' && !isEscape(data, i) {
 			colCount++
 			continue
 		}
@@ -120,16 +148,21 @@ func (p *Parser) tableHeader(data []byte, doRender bool) (size int, columns []as
 	colCount := 1
 	headerIsUnderline := true
 	headerIsWithEmptyFields := true
-	for i = 0; i < len(data) && data[i] != '\n'; i++ {
-		// If we are in a codespan we should discount any | we see, check for that here and skip ahead.
-		if isCode, _ := codeSpan(p, data[i:], 0); isCode > 0 {
-			i += isCode - 1
-		}
+	// Most lines are not table headers. A header needs a '|', so reject
+	// the first line with a SIMD IndexByte before the per-byte scan.
+	lineEnd := skipUntilChar(data, 0, '\n')
+	if bytes.IndexByte(data[:lineEnd], '|') < 0 {
+		return
+	}
+	// Scan only the header line: a backtick with no closing delimiter on
+	// this line must not pair with one further down the document.
+	for i = 0; i < lineEnd; i++ {
+		i = skipCodeSpan(data[:lineEnd], i)
 
-		if data[i] == '|' && !isBackslashEscaped(data, i) {
+		if data[i] == '|' && !isEscape(data, i) {
 			colCount++
 		}
-		if data[i] != '-' && data[i] != ' ' && data[i] != ':' && data[i] != '|' {
+		if !byteIn(data[i], "- :|") {
 			headerIsUnderline = false
 		}
 		if data[i] != ' ' && data[i] != '|' {
@@ -150,24 +183,12 @@ func (p *Parser) tableHeader(data []byte, doRender bool) (size int, columns []as
 	if data[0] == '|' {
 		colCount--
 	}
-	{
-		tmp := header
-		// remove whitespace from the end
-		for len(tmp) > 0 {
-			lastIdx := len(tmp) - 1
-			if tmp[lastIdx] == '\n' || tmp[lastIdx] == ' ' {
-				tmp = tmp[:lastIdx]
-			} else {
-				break
-			}
-		}
-		n := len(tmp)
-		if n > 2 && tmp[n-1] == '|' && !isBackslashEscaped(tmp, n-1) {
-			colCount--
-		}
+	tmp := bytes.TrimRight(header, " \n")
+	if n := len(tmp); n > 2 && tmp[n-1] == '|' && !isEscape(tmp, n-1) {
+		colCount--
 	}
 
-	// if the header looks like a underline, then we omit the header
+	// if the header looks like an underline, then we omit the header
 	// and parse the first line again as underline
 	if headerIsUnderline && !headerIsWithEmptyFields {
 		header = nil
@@ -183,7 +204,7 @@ func (p *Parser) tableHeader(data []byte, doRender bool) (size int, columns []as
 		return
 	}
 
-	if data[i] == '|' && !isBackslashEscaped(data, i) {
+	if data[i] == '|' && !isEscape(data, i) {
 		i++
 	}
 	i = skipChar(data, i, ' ')
@@ -209,9 +230,7 @@ func (p *Parser) tableHeader(data []byte, doRender bool) (size int, columns []as
 			columns[col] |= ast.TableAlignmentRight
 			dashes++
 		}
-		for i < n && data[i] == ' ' {
-			i++
-		}
+		i = skipChar(data, i, ' ')
 		if i == n {
 			return
 		}
@@ -221,20 +240,17 @@ func (p *Parser) tableHeader(data []byte, doRender bool) (size int, columns []as
 			// not a valid column
 			return
 
-		case data[i] == '|' && !isBackslashEscaped(data, i):
+		case data[i] == '|' && !isEscape(data, i):
 			// marker found, now skip past trailing whitespace
 			col++
-			i++
-			for i < n && data[i] == ' ' {
-				i++
-			}
+			i = skipChar(data, i+1, ' ')
 
 			// trailing junk found after last column
 			if col >= colCount && i < len(data) && data[i] != '\n' {
 				return
 			}
 
-		case (data[i] != '|' || isBackslashEscaped(data, i)) && col+1 < colCount:
+		case (data[i] != '|' || isEscape(data, i)) && col+1 < colCount:
 			// something else found where marker was required
 			return
 
@@ -263,14 +279,6 @@ func (p *Parser) tableHeader(data []byte, doRender bool) (size int, columns []as
 	return
 }
 
-/*
-Table:
-
-Name  | Age | Phone
-------|-----|---------
-Bob   | 31  | 555-1234
-Alice | 27  | 555-4321
-*/
 func (p *Parser) table(data []byte) int {
 	i, columns, table := p.tableHeader(data, true)
 	if i == 0 {
@@ -301,7 +309,10 @@ func (p *Parser) table(data []byte) int {
 
 		p.tableRow(data[rowStart:i], columns, false)
 	}
-	if captionContent, id, consumed := p.caption(data[i:], []byte(captionTable)); consumed > 0 {
+	if p.extensions&Mmark == 0 {
+		return i
+	}
+	if captionContent, id, consumed := parseCaption(data[i:], []byte(captionTable)); consumed > 0 {
 		caption := &ast.Caption{}
 		p.Inline(caption, captionContent)
 

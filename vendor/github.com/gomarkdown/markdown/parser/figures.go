@@ -71,7 +71,7 @@ func (p *Parser) figureBlock(data []byte, doRender bool) int {
 	for {
 		// safe to assume beg < len(data)
 
-		// check for the end of the code block
+		// check for the end of the figure block
 		figEnd, _ := sFigureLine(data[beg:], marker)
 		if figEnd != 0 {
 			beg += figEnd
@@ -103,7 +103,7 @@ func (p *Parser) figureBlock(data []byte, doRender bool) int {
 
 	defer p.Finalize(figure)
 
-	if captionContent, id, consumed := p.caption(data[beg:], []byte("Figure: ")); consumed > 0 {
+	if captionContent, id, consumed := parseCaption(data[beg:], []byte("Figure: ")); consumed > 0 {
 		caption := &ast.Caption{}
 		p.Inline(caption, captionContent)
 

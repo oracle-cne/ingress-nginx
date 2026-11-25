@@ -2,7 +2,7 @@
 import com.oracle.olcne.pipeline.BranchPattern
 
 String version  = "1.15.1"
-String imageTag = "v" + version
+String imageTag = "v" + version + "-1"
 String container_registry_namespace = "olcne"
 String registry = "container-registry.oracle.com/" + container_registry_namespace
 
