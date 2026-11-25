@@ -1,0 +1,7 @@
+# github.com/google/uuid v1.6.0
+## explicit
+github.com/google/uuid
+# k8s.io/apimachinery v0.35.3
+## explicit; go 1.25.0
+k8s.io/apimachinery/pkg/types
+k8s.io/apimachinery/pkg/util/uuid
